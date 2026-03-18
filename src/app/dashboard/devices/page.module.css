@@ -1,0 +1,66 @@
+.page { animation: fadeIn 0.5s ease; }
+.header { margin-bottom: 32px; }
+.header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; }
+.header p { font-size: 0.9rem; color: var(--text-muted); }
+
+/* Stats */
+.statsRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat { display: flex; align-items: center; gap: 14px; padding: 18px 20px; background: var(--bg-glass); backdrop-filter: blur(20px); border: 1px solid var(--border-color); border-radius: var(--radius-lg); transition: all var(--transition-base); }
+.stat:hover { border-color: var(--border-glow); box-shadow: var(--shadow-glow); }
+.statEmoji { width: 44px; height: 44px; border-radius: var(--radius-md); background: rgba(0,212,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.stat strong { font-size: 1.5rem; font-weight: 800; display: block; }
+.stat span { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Filters */
+.filterRow { display: flex; gap: 8px; margin-bottom: 24px; }
+.filterBtn { padding: 8px 20px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; background: var(--bg-glass); border: 1px solid var(--border-color); color: var(--text-secondary); transition: all var(--transition-base); }
+.filterBtn:hover { background: var(--bg-glass-hover); }
+.filterBtn.active { background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15)); border-color: var(--primary); color: var(--primary); }
+
+/* Grid */
+.devicesGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.deviceCard { background: var(--bg-glass); backdrop-filter: blur(20px); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; transition: all var(--transition-base); animation: fadeInUp 0.5s ease both; }
+.deviceCard:hover { border-color: var(--border-glow); box-shadow: var(--shadow-glow); }
+.deviceCard.offline { opacity: 0.6; }
+
+.deviceHeader { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.deviceTypeIcon { width: 44px; height: 44px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.deviceMainInfo { flex: 1; }
+.deviceMainInfo h4 { font-size: 0.95rem; font-weight: 700; }
+.deviceId { font-size: 0.7rem; color: var(--text-muted); font-family: monospace; }
+
+.deviceStatus { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: var(--radius-full); font-size: 0.72rem; font-weight: 700; }
+.deviceStatus.online { background: rgba(46,213,115,0.15); color: var(--accent-green); }
+.deviceStatus.offline { background: rgba(100,116,139,0.15); color: var(--text-muted); }
+.statusDotD { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.deviceBody { margin-bottom: 16px; }
+.deviceInfoRow { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 8px; }
+
+.deviceMetrics { display: flex; gap: 24px; margin-top: 12px; }
+.metric { flex: 1; }
+.metricLabel { font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 6px; }
+.metricValue { display: flex; align-items: center; gap: 8px; }
+.metricValue span { font-size: 0.8rem; font-weight: 600; }
+
+/* Signal Bars */
+.signalBars { display: flex; align-items: flex-end; gap: 2px; }
+.signalBar { width: 4px; background: rgba(255,255,255,0.1); border-radius: 1px; }
+.signalBar.active { background: var(--accent-green); }
+
+/* Battery */
+.batteryContainer { display: flex; align-items: center; gap: 8px; }
+.battery { width: 40px; height: 16px; border: 2px solid rgba(255,255,255,0.2); border-radius: 3px; padding: 1px; position: relative; }
+.battery::after { content: ''; position: absolute; right: -4px; top: 3px; width: 3px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 0 1px 1px 0; }
+.batteryLevel { height: 100%; border-radius: 1px; transition: width 0.5s ease; }
+.batteryContainer span { font-size: 0.8rem; font-weight: 600; }
+
+/* Footer */
+.deviceFooter { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border-color); }
+.pingBtn, .deviceActionBtn { flex: 1; padding: 8px; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 600; background: var(--bg-glass); border: 1px solid var(--border-color); color: var(--text-secondary); transition: all var(--transition-base); }
+.pingBtn:hover, .deviceActionBtn:hover { background: var(--bg-glass-hover); border-color: var(--primary); color: var(--primary); }
+.pingBtn.pinging { background: rgba(0,212,255,0.15); border-color: var(--primary); color: var(--primary); animation: pulse 1s ease infinite; }
+.pingBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 1024px) { .devicesGrid { grid-template-columns: 1fr; } .statsRow { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .statsRow { grid-template-columns: 1fr; } }
