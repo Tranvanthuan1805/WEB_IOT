@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Sidebar.module.css';
 
-export default function Sidebar() {
+export default function Sidebar({ isConnected = false }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
@@ -80,8 +80,8 @@ export default function Sidebar() {
 
         <div className={styles.sidebarFooter}>
           <div className={styles.connectionStatus}>
-            <div className={`${styles.statusDot} ${styles.online}`}></div>
-            <span>Thiết bị đã kết nối</span>
+            <div className={`${styles.statusDot} ${isConnected ? styles.online : styles.offline}`}></div>
+            <span>{isConnected ? 'MQTT đã kết nối' : 'MQTT mất kết nối'}</span>
           </div>
           <div className={styles.version}>v2.0.1 • IoT Platform</div>
         </div>
@@ -89,3 +89,4 @@ export default function Sidebar() {
     </>
   );
 }
+

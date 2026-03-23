@@ -249,6 +249,12 @@
   animation: pulse 2s ease infinite;
 }
 
+.statusDot.offline {
+  background: var(--accent-red);
+  box-shadow: 0 0 8px rgba(255, 71, 87, 0.5);
+  animation: pulse 2s ease infinite;
+}
+
 .version {
   font-size: 0.7rem;
   color: var(--text-muted);

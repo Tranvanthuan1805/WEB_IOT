@@ -1,18 +1,26 @@
+'use client';
 import Sidebar from '@/components/Sidebar/Sidebar';
+import { MqttProvider } from '@/hooks/useMqtt';
+import useMqtt from '@/hooks/useMqtt';
 import styles from './layout.module.css';
 
-export const metadata = {
-  title: "Dashboard - DrowsyGuard IoT",
-  description: "Bảng điều khiển giám sát hệ thống cảnh báo buồn ngủ cho tài xế",
-};
+function DashboardInner({ children }) {
+  const { isConnected } = useMqtt();
 
-export default function DashboardLayout({ children }) {
   return (
     <div className={styles.dashboardLayout}>
-      <Sidebar />
+      <Sidebar isConnected={isConnected} />
       <main className={styles.mainContent}>
         {children}
       </main>
     </div>
+  );
+}
+
+export default function DashboardLayout({ children }) {
+  return (
+    <MqttProvider>
+      <DashboardInner>{children}</DashboardInner>
+    </MqttProvider>
   );
 }

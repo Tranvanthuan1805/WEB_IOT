@@ -91,6 +91,74 @@
   background: currentColor;
 }
 
+/* MQTT Badge */
+.mqttBadge {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.5px;
+  transition: all var(--transition-base);
+}
+
+.mqttOnline {
+  background: rgba(46, 213, 115, 0.12);
+  color: var(--accent-green);
+  border: 1px solid rgba(46, 213, 115, 0.3);
+}
+
+.mqttOffline {
+  background: rgba(255, 71, 87, 0.12);
+  color: var(--accent-red);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  animation: pulse 2s ease infinite;
+}
+
+.mqttDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Camera Stream */
+.cameraStream {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: #000;
+}
+
+.cameraWaitText {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+  text-align: center;
+}
+
+.retryBtn {
+  margin-top: 10px;
+  padding: 8px 20px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.retryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+}
+
 /* Alert Banner */
 .alertBanner {
   margin-bottom: 24px;
@@ -139,6 +207,63 @@
 
 .alertDismiss:hover {
   background: rgba(255, 71, 87, 0.4);
+}
+
+.soundToggle {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 165, 2, 0.2);
+  border-radius: 50%;
+  font-size: 1.1rem;
+  color: var(--accent-yellow);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  border: none;
+  flex-shrink: 0;
+}
+
+.soundToggle:hover {
+  background: rgba(255, 165, 2, 0.4);
+  transform: scale(1.1);
+}
+
+/* Camera Alert State */
+.cameraAlert {
+  border-color: rgba(255, 71, 87, 0.6) !important;
+  box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
+  animation: pulseRed 2s ease infinite;
+}
+
+/* Manual IP Input */
+.manualIpInput {
+  display: flex;
+  gap: 6px;
+}
+
+.ipInput {
+  width: 100%;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  outline: none;
+  transition: all var(--transition-base);
+}
+
+.ipInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+}
+
+.ipInput::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 /* ==================== MAIN GRID ==================== */
@@ -198,11 +323,13 @@
 /* ==================== FACE DETECTION ==================== */
 .faceDetectionArea {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .cameraView {
-  flex: 1;
+  width: 100%;
+  min-height: 200px;
 }
 
 .cameraPlaceholder {
@@ -255,10 +382,9 @@
 }
 
 .faceInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 160px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
 .faceInfoItem {
@@ -294,7 +420,7 @@
   align-items: baseline;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .heartEmoji {
@@ -309,6 +435,7 @@
   background: linear-gradient(135deg, var(--accent-red), #FF6B81);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  transition: all 0.3s ease;
 }
 
 .bpmUnit {
@@ -317,48 +444,120 @@
   font-weight: 600;
 }
 
-.heartChart {
-  height: 80px;
-  margin-bottom: 20px;
-  padding: 0 4px;
+/* HR Zone Bar */
+.hrZone {
+  margin-bottom: 16px;
 }
 
-.chartGrid {
+.hrZoneBar {
   display: flex;
-  align-items: flex-end;
-  gap: 3px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  gap: 2px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.hrZoneSegment {
+  border-radius: 3px;
+  opacity: 0.6;
+}
+
+.hrZoneIndicator {
+  position: absolute;
+  top: -4px;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: left 0.5s ease;
+  z-index: 2;
+}
+
+.hrZoneLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  padding: 0 2px;
+}
+
+/* ECG Chart */
+.heartChart {
+  height: 90px;
+  margin-bottom: 16px;
+  position: relative;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.ecgChart {
+  width: 100%;
   height: 100%;
 }
 
-.chartBar {
-  flex: 1;
-  border-radius: 2px 2px 0 0;
-  min-height: 4px;
-  transition: height 0.5s ease;
+.ecgLine {
+  filter: drop-shadow(0 0 3px currentColor);
+  transition: d 0.3s ease;
+}
+
+.ecgDot {
+  filter: drop-shadow(0 0 6px currentColor);
+  animation: pulse 1.5s ease infinite;
+}
+
+.chartPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.chartPlaceholder span {
+  font-size: 1.5rem;
+  animation: float 3s ease infinite;
+}
+
+.chartPlaceholder p {
+  font-size: 0.75rem;
 }
 
 .heartMeta {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
 .heartMetaItem {
-  padding: 10px;
+  padding: 8px 6px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-sm);
   text-align: center;
+  transition: all var(--transition-base);
+}
+
+.heartMetaItem:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .heartMetaItem span {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
   display: block;
   margin-bottom: 4px;
 }
 
 .heartMetaItem strong {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--primary);
 }
 
@@ -615,5 +814,177 @@
 
   .faceDetectionArea {
     flex-direction: column;
+  }
+}
+
+/* ==================== GOOGLE MAPS CARD ==================== */
+.mapCard {
+  overflow: hidden;
+}
+
+.mapContainer {
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.mapOpenBtn {
+  font-size: 0.75rem;
+  color: var(--accent-blue, #00D4FF);
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.mapOpenBtn:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.6);
+}
+
+/* ==================== HR ANALYSIS CARD ==================== */
+.hrAnalysisCard {
+  grid-column: span 2;
+}
+
+.hrAnalysisContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hrZoneBig {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.hrZoneCircle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.5s ease;
+}
+
+.hrZoneBpm {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.hrZoneUnit {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hrZoneDetails {
+  flex: 1;
+}
+
+.hrZoneBar {
+  display: flex;
+  gap: 3px;
+}
+
+.healthSuggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suggestion {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  border-left: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.suggestion p {
+  margin: 0;
+  color: rgba(255,255,255,0.85);
+}
+
+.suggestion.danger {
+  background: rgba(255, 71, 87, 0.1);
+  border-left-color: #FF4757;
+}
+
+.suggestion.warning {
+  background: rgba(255, 165, 2, 0.1);
+  border-left-color: #FFA502;
+}
+
+.suggestion.info {
+  background: rgba(0, 212, 255, 0.08);
+  border-left-color: #00D4FF;
+}
+
+.suggestion.success {
+  background: rgba(46, 213, 115, 0.1);
+  border-left-color: #2ED573;
+}
+
+.suggestionIcon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.emergencySection {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.emergencyBtn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #FF4757, #FF6B81);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: emergencyPulse 2s infinite;
+}
+
+.emergencyBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+}
+
+@keyframes emergencyPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 71, 87, 0); }
+}
+
+@media (max-width: 768px) {
+  .hrAnalysisCard {
+    grid-column: span 1;
+  }
+
+  .hrZoneBig {
+    flex-direction: column;
+    align-items: center;
   }
 }
