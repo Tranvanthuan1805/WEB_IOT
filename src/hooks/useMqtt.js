@@ -10,6 +10,7 @@ const TOPICS = {
   CAMERA_IP: TOPIC_PREFIX + 'sensor/camera_ip',
   ALARM: TOPIC_PREFIX + 'command/alarm',
   DROWSY: TOPIC_PREFIX + 'status/drowsy',
+  AI_SERVER_URL: TOPIC_PREFIX + 'server/ai_url',
 };
 
 const MqttContext = createContext(null);
@@ -21,6 +22,7 @@ export function MqttProvider({ children }) {
   const [alarmActive, setAlarmActive] = useState(false);
   const [isDrowsy, setIsDrowsy] = useState(false);
   const [heartHistory, setHeartHistory] = useState([]);
+  const [aiServerUrl, setAiServerUrl] = useState('');
   const clientRef = useRef(null);
 
   useEffect(() => {
@@ -84,6 +86,14 @@ export function MqttProvider({ children }) {
           console.log(`[MQTT] Drowsy: ${drowsy ? 'YES' : 'NO'}`);
           break;
         }
+        case TOPICS.AI_SERVER_URL: {
+          const url = payload.trim();
+          if (url.startsWith('http')) {
+            setAiServerUrl(url);
+            console.log(`[MQTT] AI Server URL: ${url}`);
+          }
+          break;
+        }
         default:
           break;
       }
@@ -122,6 +132,7 @@ export function MqttProvider({ children }) {
     alarmActive,
     isDrowsy,
     heartHistory,
+    aiServerUrl,
     publish,
     TOPICS,
   };

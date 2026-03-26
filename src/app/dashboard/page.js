@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useMqtt from '@/hooks/useMqtt';
 import useAlarmSound from '@/hooks/useAlarmSound';
+import useVoiceAI from '@/hooks/useVoiceAI';
 import styles from './page.module.css';
 
 export default function Dashboard() {
@@ -12,6 +13,7 @@ export default function Dashboard() {
     alarmActive,
     isDrowsy,
     heartHistory,
+    aiServerUrl,
     publish,
   } = useMqtt();
 
@@ -22,6 +24,8 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [cameraError, setCameraError] = useState(false);
+  const [aiServerOnline, setAiServerOnline] = useState(false);
+  const [isAiPopoverOpen, setIsAiPopoverOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [manualIp, setManualIp] = useState('');
   const [driverName] = useState('Nguyễn Văn A');
@@ -32,12 +36,19 @@ export default function Dashboard() {
   const heartRate = mqttHeartRate || 0;
 
   // Python AI Server URL
-  const AI_SERVER = 'http://localhost:5000';
-  const aiVideoFeedUrl = `${AI_SERVER}/video_feed`;
+  // Priority: 1. ngrok URL from MQTT (auto-published by local_bridge.py / server.py)
+  //           2. NEXT_PUBLIC_AI_SERVER_URL env var
+  //           3. localhost:5000 ONLY if running locally (not on public domain)
+  const isPublicDomain = typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+  const AI_SERVER = aiServerUrl || process.env.NEXT_PUBLIC_AI_SERVER_URL || (isPublicDomain ? '' : 'http://localhost:5000');
+  const aiVideoFeedUrl = AI_SERVER ? `${AI_SERVER}/video_feed` : '';
 
   // Camera stream URL (direct from ESP32, as fallback)
   const effectiveIp = cameraIp || manualIp;
   const cameraStreamUrl = effectiveIp ? `http://${effectiveIp}:81/stream` : '';
+
+  // Determine what camera source to show: AI server first, then direct ESP32 stream
+  const activeCameraUrl = (AI_SERVER && !cameraError) ? aiVideoFeedUrl : cameraStreamUrl;
 
   // Set camera IP on Python server
   const setServerCamera = useCallback((ip) => {
@@ -54,6 +65,22 @@ export default function Dashboard() {
       setServerCamera(cameraIp);
     }
   }, [cameraIp, setServerCamera]);
+
+  // Track AI server online status
+  useEffect(() => {
+    if (!AI_SERVER) {
+      setAiServerOnline(false);
+      return;
+    }
+    const checkServer = () => {
+      fetch(`${AI_SERVER}/video_feed`, { method: 'HEAD', mode: 'no-cors' })
+        .then(() => setAiServerOnline(true))
+        .catch(() => setAiServerOnline(false));
+    };
+    checkServer();
+    const interval = setInterval(checkServer, 15000);
+    return () => clearInterval(interval);
+  }, [AI_SERVER]);
 
   // Session timer
   useEffect(() => {
@@ -75,12 +102,20 @@ export default function Dashboard() {
         console.log('[SMS] Alert sent:', data);
         setNotifications(prev => [{
           id: Date.now(),
-          type: 'warning',
-          message: `📱 Đã gửi cảnh báo SMS đến ${EMERGENCY_PHONE}`,
+          type: 'success',
+          message: `✅ Đã gửi SMS thành công đến ${EMERGENCY_PHONE}`,
           time: new Date().toLocaleTimeString('vi-VN'),
         }, ...prev].slice(0, 8));
       })
-      .catch(() => console.log('[SMS] Server not available'));
+      .catch((err) => {
+        console.log('[SMS] Server not available', err);
+        setNotifications(prev => [{
+          id: Date.now(),
+          type: 'danger',
+          message: `❌ Lỗi gửi SMS. Hãy đảm bảo server AI đang chạy.`,
+          time: new Date().toLocaleTimeString('vi-VN'),
+        }, ...prev].slice(0, 8));
+      });
   }, [smsSent, driverName, heartRate, AI_SERVER, EMERGENCY_PHONE]);
 
   // Alert trigger từ MQTT alarm + sound + SMS
@@ -154,6 +189,9 @@ export default function Dashboard() {
   };
 
   const drowsinessLevel = getDrowsinessLevel();
+
+  // --- AI VOICE ASSISTANT ---
+  const { isListening, aiResponse, startListening, speak } = useVoiceAI(heartRate, getStatusText());
 
   // --- HEART RATE ANALYSIS ---
   const getHrZone = () => {
@@ -274,24 +312,41 @@ export default function Dashboard() {
           <div className={styles.cardHeader}>
             <h3>📷 Camera AI Detection</h3>
             <span className={`${styles.liveBadge}`}>
-              {!cameraError ? '● LIVE' : '○ OFFLINE'}
+              {activeCameraUrl && !cameraError ? '● LIVE' : '○ OFFLINE'}
             </span>
           </div>
           <div className={styles.faceDetectionArea}>
             <div className={styles.cameraView}>
-              <img
-                src={aiVideoFeedUrl}
-                alt="AI Drowsiness Detection"
-                className={`${styles.cameraStream} ${alarmActive ? styles.cameraAlert : ''}`}
-                onError={() => setCameraError(true)}
-                onLoad={() => setCameraError(false)}
-              />
+              {activeCameraUrl ? (
+                <img
+                  src={activeCameraUrl}
+                  alt="AI Drowsiness Detection"
+                  className={`${styles.cameraStream} ${alarmActive ? styles.cameraAlert : ''}`}
+                  onError={() => setCameraError(true)}
+                  onLoad={() => setCameraError(false)}
+                />
+              ) : (
+                <div className={styles.cameraPlaceholder}>
+                  <span style={{fontSize: '2.5rem'}}>📷</span>
+                  <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', textAlign: 'center', maxWidth: '280px', lineHeight: '1.5'}}>
+                    {isPublicDomain
+                      ? '⚠️ Đang chờ kết nối AI Server...\nChạy local_bridge.py trên máy tính để kết nối camera.'
+                      : '⚠️ AI Server chưa khởi động.\nChạy server.py trên máy tính.'}
+                  </p>
+                </div>
+              )}
             </div>
             <div className={styles.faceInfo}>
               <div className={styles.faceInfoItem}>
                 <span className={styles.faceInfoLabel}>AI Server</span>
-                <span className={`${styles.faceInfoValue} ${!cameraError ? styles.open : styles.closed}`}>
-                  {!cameraError ? '🟢 Online' : '🔴 Offline'}
+                <span className={`${styles.faceInfoValue} ${AI_SERVER && !cameraError ? styles.open : styles.closed}`}>
+                  {AI_SERVER && !cameraError ? '🟢 Online' : '🔴 Offline'}
+                </span>
+              </div>
+              <div className={styles.faceInfoItem}>
+                <span className={styles.faceInfoLabel}>Nguồn hình</span>
+                <span className={styles.faceInfoValue} style={{fontSize: '0.7rem'}}>
+                  {AI_SERVER && !cameraError ? '🤖 AI Server' : cameraStreamUrl && !cameraError ? '📹 ESP32 Direct' : '⏳ Chờ kết nối'}
                 </span>
               </div>
               <div className={styles.faceInfoItem}>
@@ -747,6 +802,27 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* AI Assistant Floating Button */}
+      <div className={styles.aiAssistant}>
+        {(isListening || aiResponse) && isAiPopoverOpen && (
+          <div className={styles.aiPopover}>
+            <p className={styles.aiResponse}>{aiResponse || 'Tôi đang nghe...'}</p>
+            {isListening && <span className={styles.aiStatus}>Listening...</span>}
+          </div>
+        )}
+        <button 
+          className={`${styles.aiToggle} ${isListening ? styles.listening : ''}`}
+          onClick={() => {
+            setIsAiPopoverOpen(true);
+            startListening();
+          }}
+          onMouseEnter={() => setIsAiPopoverOpen(true)}
+          title="Hỏi trợ lý AI"
+        >
+          {isListening ? '🎙️' : '🤖'}
+        </button>
       </div>
     </div>
   );
