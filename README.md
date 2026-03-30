@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DrowsyGuard - Web Dashboard
 
-## Getting Started
+Dashboard web real-time giám sát tài xế sử dụng Next.js.
 
-First, run the development server:
+## Công nghệ
+- Next.js 16 (App Router)
+- React 19
+- MQTT.js (Real-time communication)
+- CSS Modules
 
+## Tính năng
+- Dashboard tổng quan
+- Analytics: Phân tích dữ liệu buồn ngủ
+- Devices: Quản lý thiết bị ESP32-CAM
+- Drivers: Quản lý tài xế
+- History: Lịch sử cảnh báo
+- Settings: Cài đặt hệ thống
+
+## Cài đặt
+
+### 1. Cài đặt dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Chạy development server
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Mở [http://localhost:3000](http://localhost:3000) để xem dashboard.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Build production
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Cấu hình MQTT
+Dashboard kết nối với MQTT broker để nhận dữ liệu real-time:
+- Broker: HiveMQ (broker.hivemq.com)
+- Port: 8000 (WebSocket)
+- Topic: `tu_drowsy_7b8k9m_security/#`
 
-To learn more about Next.js, take a look at the following resources:
+## Cấu trúc project
+```
+src/
+├── app/
+│   ├── dashboard/          # Dashboard pages
+│   │   ├── analytics/      # Trang phân tích
+│   │   ├── devices/        # Quản lý thiết bị
+│   │   ├── drivers/        # Quản lý tài xế
+│   │   ├── history/        # Lịch sử
+│   │   └── settings/       # Cài đặt
+│   ├── layout.js           # Root layout
+│   └── page.js             # Landing page
+├── components/
+│   └── Sidebar/            # Sidebar navigation
+└── hooks/
+    ├── useMqtt.js          # MQTT connection hook
+    ├── useVoiceAI.js       # Voice AI hook
+    └── useAlarmSound.js    # Alarm sound hook
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
+Deploy dễ dàng lên Vercel:
+```bash
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Hoặc push lên GitHub và kết nối với Vercel.
