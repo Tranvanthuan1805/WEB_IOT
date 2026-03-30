@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DrowsyGuard - Python Backend
 
-## Getting Started
+Backend AI xử lý phát hiện buồn ngủ sử dụng Computer Vision.
 
-First, run the development server:
+## Công nghệ
+- OpenCV: Xử lý video stream
+- MediaPipe: Phát hiện khuôn mặt và landmarks
+- NumPy & SciPy: Tính toán toán học
+- Pygame: Phát âm thanh cảnh báo
+- MQTT: Giao tiếp với ESP32-CAM
 
+## Chức năng
+- Nhận video stream từ ESP32-CAM
+- Phát hiện mắt nhắm (Eye Aspect Ratio - EAR)
+- Phát hiện ngáp (Mouth Aspect Ratio - MAR)
+- Gửi lệnh báo động qua MQTT
+- Phát âm thanh cảnh báo local
+
+## Cài đặt
+
+### 1. Cài đặt Python dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pip install -r esp32_cam/requirements.txt
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Chạy server
+```bash
+python esp32_cam/main.py
+```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+hoặc
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+python esp32_cam/server.py
+```
 
-## Learn More
+## Cấu hình
+- MQTT Broker: HiveMQ (broker.hivemq.com)
+- MQTT Topic: `tu_drowsy_7b8k9m_security/`
+- Camera IP: Tự động nhận từ ESP32-CAM qua MQTT
 
-To learn more about Next.js, take a look at the following resources:
+## Files
+- `main.py`: Script chính xử lý AI
+- `server.py`: Server backend
+- `utils.py`: Các hàm tiện ích
+- `test_call.py`: Test MQTT connection
+- `generate_alarm.py`: Tạo file âm thanh cảnh báo
+- `alarm.wav`: File âm thanh báo động
+- `requirements.txt`: Python dependencies
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Thuật toán
+- **EAR (Eye Aspect Ratio)**: Tính tỷ lệ mở mắt
+- **MAR (Mouth Aspect Ratio)**: Tính độ há miệng
+- Ngưỡng cảnh báo tùy chỉnh được
